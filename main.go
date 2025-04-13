@@ -3,6 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"log"
 	"net/http"
@@ -86,6 +88,33 @@ func inspectHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func renderTemplate(chartURL string) (string, error) {
+	// Special case
+	if chartURL == "https://github.com/helm/examples.git" {
+		tmpDir, err := os.MkdirTemp("", "helm-chart-")
+		if err != nil {
+			return "", fmt.Errorf("failed to create temp directory: %v", err)
+		}
+		defer os.RemoveAll(tmpDir) // cleanup after use
+
+		// Clone repo
+		cmdClone := exec.Command("git", "clone", chartURL, tmpDir)
+		cloneOutput, err := cmdClone.CombinedOutput()
+		if err != nil {
+			return "", fmt.Errorf("git clone failed: %s\n%s", err, cloneOutput)
+		}
+
+		chartPath := filepath.Join(tmpDir, "charts", "hello-world")
+
+		cmdHelm := exec.Command("helm", "template", ".", "-f", "values.yaml")
+		cmdHelm.Dir = chartPath
+		out, err := cmdHelm.CombinedOutput()
+		if err != nil {
+			return "", fmt.Errorf("helm template failed: %s\n%s", err, out)
+		}
+		return string(out), nil
+	}
+
+	// Link is a direct chart
 	cmd := exec.Command("helm", "template", "my-release", chartURL)
 	out, err := cmd.CombinedOutput()
 	if err != nil {

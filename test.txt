@@ -25,4 +25,8 @@ $ curl -X POST http://localhost:8080/inspect \
 {"images":[{"name":"docker.io/bitnami/postgresql:15.1.0-debian-11-r12","size_bytes":92528286,"layers":2}]}
 
 
+4. Git clone case
 
+$ curl -X POST http://localhost:8080/inspect   -H "Content-Type: application/json"   -d '{"chart_url": "https://github.com/helm/examples.git"}'
+
+{"images":[{"name":"nginx:1.16.0","size_bytes":44823649,"layers":3}]}
