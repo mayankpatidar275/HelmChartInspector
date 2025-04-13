@@ -1,0 +1,8 @@
+check if the helm and docker are installed.
+helm images plugin can be used to get the images of a helm chart.
+helm go sdk can be used to instead of helm cli.
+docker package can be used to get the image metadata instead of docker client.
+
+possible locations where image can be found in the menifest.yml file
+1. spec.template.spec.containers
+2. spec.template.spec.initContainers
